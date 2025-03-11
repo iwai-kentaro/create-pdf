@@ -4,9 +4,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
         const API_BASE_URL = window.location.hostname.includes("localhost")
             ? "http://localhost:3030"
-            : "https://create-pdf-five.vercel.app/";
+            : "https://create-pdf-five.vercel.app/api";
 
-        fetch(`${API_BASE_URL}/api/generate-pdf`)
+        fetch(`${API_BASE_URL}/generate-pdf`)
 
         const blob = await res.blob();
 
