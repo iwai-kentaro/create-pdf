@@ -1,36 +1,56 @@
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
-import fs from "fs";
-import path from "path";
 
 export default async function handler(req, res) {
     let browser;
     try {
+        console.log("🚀 PDF生成開始");
+
+        // ✅ Puppeteerを起動
+        const executablePath = await chromium.executablePath() || "/usr/bin/chromium";
+        console.log("Chromium executablePath:", executablePath);
+
         browser = await puppeteer.launch({
             args: chromium.args,
-            executablePath: await chromium.executablePath() || "/usr/bin/chromium",
+            executablePath,
             headless: "new",
             ignoreHTTPSErrors: true,
         });
 
         const page = await browser.newPage();
 
-        // ✅ 本番環境は Vercel の URL, ローカル環境は `http://localhost:3030/index.html`
+        // ✅ ローカル・本番のURLを設定
         const filePath = process.env.NODE_ENV === "production"
             ? "https://your-vercel-app.vercel.app/index.html"
-            : "http://localhost:3030/index.html";  // ✅ 変更
+            : "http://localhost:3030/index.html";
 
-        await page.goto(filePath, { waitUntil: "networkidle2" }); // ✅ 変更
+        console.log("📄 ページを開く:", filePath);
 
-        // ✅ 画像やフォントのロードを待機
-        await page.waitForTimeout(3000); // 🔽 追加 (フォント・画像が遅れるのを防ぐ)
-        await page.evaluateHandle("document.fonts.ready");
+        // ✅ ページ遷移のエラーハンドリング
+        try {
+            await page.goto(filePath, { waitUntil: "networkidle2" });
+        } catch (err) {
+            console.error("🚨 page.goto() エラー:", err);
+            res.status(500).json({ error: "ページの読み込みに失敗しました" });
+            return;
+        }
 
-        // ✅ PDF生成
+        // ✅ フォントのロードを確実に待つ
+        await page.waitForSelector("body", { visible: true });
+        await page.evaluate(() => document.fonts.ready);
+
+        // ✅ `waitForTimeout` の代わりに `setTimeout()` を使用
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+
+        console.log("✅ ページ準備完了、PDF生成開始");
+
+        // ✅ PDFを生成
         const pdfBuffer = await page.pdf({
             format: "A4",
-            printBackground: true, // ✅ 背景を描画
+            printBackground: true,
         });
+
+        console.log("✅ PDF生成完了");
 
         await browser.close();
 
