@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         const page = await browser.newPage();
 
         // 🔽 public/index.html の内容を取得して直接セット
-        const filePath = `file://${path.join(__dirname, "public/index.html")}`;
+        const filePath = `file://${path.join(__dirname, "../public/index.html")}`;
         await page.goto(filePath, { waitUntil: "networkidle2" });
 
         // PDFを生成
