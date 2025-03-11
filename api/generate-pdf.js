@@ -8,12 +8,14 @@ export default async function handler(req, res) {
         const browser = await puppeteer.launch({
             args: chromium.args,
             executablePath: await chromium.executablePath(),
-            headless: chromium.headless
+            headless: chromium.headless,
+            ignoreHTTPSErrors: true,
         });
 
         const page = await browser.newPage();
-        const filePath = `file://${path.join(process.cwd(), "public/index.html")}`;
-        await page.goto(filePath, { waitUntil: "networkidle2" });
+        const filePath = path.join(process.cwd(), "public/index.html");
+        const htmlContent = fs.readFileSync(filePath, "utf-8");
+        await page.setContent(htmlContent, { waitUntil: "networkidle2" });
 
         const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
 
@@ -22,6 +24,9 @@ export default async function handler(req, res) {
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", "attachment; filename=sample.pdf");
         res.send(pdfBuffer);
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     } catch (error) {
         console.error("❌ PDF生成エラー:", error);
         res.status(500).json({ error: "PDF生成に失敗しました" });
