@@ -1,8 +1,7 @@
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
-import path from "path";
 import fs from "fs";
-
+import path from "path";
 
 export default async function handler(req, res) {
     try {
@@ -14,20 +13,22 @@ export default async function handler(req, res) {
         });
 
         const page = await browser.newPage();
+
+        // 🔽 public/index.html の内容を取得して直接セット
         const filePath = path.join(process.cwd(), "public/index.html");
         const htmlContent = fs.readFileSync(filePath, "utf-8");
         await page.setContent(htmlContent, { waitUntil: "networkidle2" });
 
+        // PDFを生成
         const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
 
         await browser.close();
 
+        // ヘッダーを設定
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", "attachment; filename=sample.pdf");
-        res.send(pdfBuffer);
         res.setHeader("Access-Control-Allow-Origin", "*");
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        res.send(pdfBuffer);
     } catch (error) {
         console.error("❌ PDF生成エラー:", error);
         res.status(500).json({ error: "PDF生成に失敗しました" });
