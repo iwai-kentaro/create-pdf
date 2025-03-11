@@ -3,6 +3,7 @@ import chromium from "@sparticuz/chromium";
 import path from "path";
 import fs from "fs";
 
+
 export default async function handler(req, res) {
     try {
         const browser = await puppeteer.launch({
