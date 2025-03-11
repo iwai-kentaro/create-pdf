@@ -1,0 +1,25 @@
+{
+  "name": "site-template",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run sass:watch\" \"npm run browser-sync\"",
+    "server": "nodemon server.js",
+    "sass:watch": "sass --watch src/scss:public/css",
+    "browser-sync": "browser-sync start --server public --files \"public/css/*.css, public/*.html\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "concurrently": "^9.1.2",
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9",
+    "puppeteer": "^24.4.0",
+    "sass": "^1.85.1"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.3"
+  }
+}
