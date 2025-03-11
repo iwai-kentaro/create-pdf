@@ -2,7 +2,12 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('download-pdf').addEventListener('click', async () => {
         console.log('Click');
 
-        const res = await fetch("http://localhost:3030/generate-pdf");
+        const API_BASE_URL = window.location.hostname.includes("localhost")
+            ? "http://localhost:3030"
+            : "https://create-pdf-five.vercel.app/";
+
+        fetch(`${API_BASE_URL}/generate-pdf`)
+
         const blob = await res.blob();
 
         const link = document.createElement('a');
